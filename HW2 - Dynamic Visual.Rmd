@@ -17,44 +17,44 @@ library("survminer")
 library("viridis")
 library("plotly")
 library("htmlwidgets")
-
-data("lung")
-
-
-## Multivariable Cox Model:
-res.cox <- coxph(Surv(time, status) ~ age + sex + ph.ecog, data =  lung)
-# summary(res.cox)
+library("GGally")
 
 
+# ## Multivariable Cox Model:
+# res.cox <- coxph(Surv(time, status) ~ age + sex + ph.ecog, data =  lung)
+# # summary(res.cox)
+# 
+# 
+# 
+# ## Plotting the Survival Model
+# # ggsurvplot(survfit(res.cox), color = "#2E9FDF", ggtheme = theme_minimal(), data = lung)
+# 
+# ##  Creating A New Data Set Keeping age and ph.ecog constant
+# sex_df <- with(lung,
+#                data.frame(sex = c(1, 2), 
+#                           age = rep(mean(age, na.rm = TRUE), 2),
+#                           ph.ecog = c(1, 1)
+#                )
+# )
+# 
+# 
+# # Fitting a basic survival model to this new dataset.
+# fit <- survfit(res.cox, newdata = sex_df)
+# surv_plot <- ggsurvplot(fit, conf.int = TRUE, legend.labs=c("Sex=Male", "Sex=Female"), ggtheme = theme_minimal(), data = sex_df)
+# 
+# 
+# # class(surv_plot)
+# plotly::ggplotly(surv_plot[[1]])
 
-## Plotting the Survival Model
-# ggsurvplot(survfit(res.cox), color = "#2E9FDF", ggtheme = theme_minimal(), data = lung)
 
-##  Creating A New Data Set Keeping age and ph.ecog constant
-sex_df <- with(lung,
-               data.frame(sex = c(1, 2), 
-                          age = rep(mean(age, na.rm = TRUE), 2),
-                          ph.ecog = c(1, 1)
-               )
-)
-
-
-# Fitting a basic survival model to this new dataset.
-fit <- survfit(res.cox, newdata = sex_df)
-surv_plot <- ggsurvplot(fit, conf.int = TRUE, legend.labs=c("Sex=Male", "Sex=Female"), ggtheme = theme_minimal(), data = sex_df)
-
-
-# class(surv_plot)
-plotly::ggplotly(surv_plot[[1]])
 
 
 
 
 # Improve survival curve model:
-library(GGally)
-ggsurvplot(fit, conf.int = TRUE, legend.labs=c("Sex=Male", "Sex=Female"), 
-           ggtheme = scale_color_viridis(discrete = TRUE), data = sex_df
-           )
+# ggsurvplot(fit, conf.int = TRUE, legend.labs=c("Sex=Male", "Sex=Female"), 
+#            ggtheme = scale_color_viridis(discrete = TRUE), data = sex_df
+#            )
 
 # Fitting model:
 surv1 <- survfit(Surv(time,status) ~ sex, data = lung)
@@ -83,4 +83,7 @@ p_i <- plotly::ggplotly(p)
 p_i <- p_i %>%
   rangeslider() %>%
   layout(hovermode = "x")
+
+
+p_i
 ```
