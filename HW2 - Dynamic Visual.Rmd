@@ -1,0 +1,86 @@
+---
+title: "HW2 - 566 - Dynamic Visual"
+author: "Tanner Brooks"
+output: html_document
+knit: (function(input_file, encoding) {
+    out_dir <- 'docs';
+    rmarkdown::render(input_file,
+  encoding=encoding,
+  output_file=file.path(dirname(input_file), out_dir, 'index.html'))})
+---
+
+
+
+```{r}
+library("survival")
+library("survminer")
+library("viridis")
+library("plotly")
+library("htmlwidgets")
+
+data("lung")
+
+
+## Multivariable Cox Model:
+res.cox <- coxph(Surv(time, status) ~ age + sex + ph.ecog, data =  lung)
+# summary(res.cox)
+
+
+
+## Plotting the Survival Model
+# ggsurvplot(survfit(res.cox), color = "#2E9FDF", ggtheme = theme_minimal(), data = lung)
+
+##  Creating A New Data Set Keeping age and ph.ecog constant
+sex_df <- with(lung,
+               data.frame(sex = c(1, 2), 
+                          age = rep(mean(age, na.rm = TRUE), 2),
+                          ph.ecog = c(1, 1)
+               )
+)
+
+
+# Fitting a basic survival model to this new dataset.
+fit <- survfit(res.cox, newdata = sex_df)
+surv_plot <- ggsurvplot(fit, conf.int = TRUE, legend.labs=c("Sex=Male", "Sex=Female"), ggtheme = theme_minimal(), data = sex_df)
+
+
+# class(surv_plot)
+plotly::ggplotly(surv_plot[[1]])
+
+
+
+
+# Improve survival curve model:
+library(GGally)
+ggsurvplot(fit, conf.int = TRUE, legend.labs=c("Sex=Male", "Sex=Female"), 
+           ggtheme = scale_color_viridis(discrete = TRUE), data = sex_df
+           )
+
+# Fitting model:
+surv1 <- survfit(Surv(time,status) ~ sex, data = lung)
+
+# Creating ggplot of survial curves between men and women:
+p <- ggsurv(surv1, CI = F)
+
+# Changing color theme & Legend:
+p <- p + guides(linetype = "none") +
+ scale_color_viridis(name = 'Sex', breaks = c(1,2), labels=c('Male', 'Female'), discrete = TRUE)
+
+# Changing the theme style:
+p <- p + theme_minimal()
+
+# Adding a title:
+p <- p + ggtitle("Survival Curves of Men and Women With Lung Cancer")
+
+
+p
+
+
+# Creating Interactive Plot:
+p_i <- plotly::ggplotly(p)
+
+
+p_i <- p_i %>%
+  rangeslider() %>%
+  layout(hovermode = "x")
+```
