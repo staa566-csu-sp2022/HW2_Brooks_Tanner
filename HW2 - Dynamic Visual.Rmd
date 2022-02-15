@@ -18,6 +18,7 @@ library("viridis")
 library("plotly")
 library("htmlwidgets")
 library("GGally")
+library("tidyverse")
 
 
 # Creating basic model:
