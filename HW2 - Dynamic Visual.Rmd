@@ -1,5 +1,5 @@
 ---
-title: "HW2 Dynamic Visual - Tanner Brooks"
+title: "566 Dynamic Visual - Homework 2"
 author: "Tanner Brooks"
 output: html_document
 knit: (function(input_file, encoding) {
@@ -83,11 +83,11 @@ This data source can be found in the "survival" r package and can be pulled from
 
 
 ## What I want to convey in the figure
-I want to show the difference between survival rates between males and females with 95% confidence bands. I want the user to be able to easily see from a high level the difference between the two groups and further be able to compare between probabilities per a specified time range. Adding a time range and the ability to interact with the graph, more conveniently allows the user to zoom in to see where there is overlap and by what degree. The tooltip contains the upper and lower bounds of each of the groups to provide the numeric values.
+I want to show the difference of survival rates between males and females with 95% confidence bands. I want the user to easily see from a high level the difference between the two groups and to further be able to compare the probabilities per a specified time range. The addition of a time range and interaction with the graph more conveniently allows the user to zoom in to see where there is overlap and by what degree. The tooltip contains the upper and lower bounds of each group to provide the numeric values.
 
 
 ## What functionality and formatting you put into the figure and why
-I first built a basic survival model to predict survival times by sex. I put this model in a ggsurv plot to grab the probabilities for each sex and each of the upper and lower confidence band values. Converting the ggsurv plot to a plotly graph did not allow the customization I needed in order to make the graph more readable, color coordinated, and tooltip friendly. I decided to directly use plotly to incorporate these features so I manipulated the data frame to be in wide format in order for plotly to be able to visualize everything I wanted. I created confidence bands for each of the sexes and made them dashed lines with smaller line widths. This way it easier to distinguish between the predicted lines and their respective confidence bands without getting too overwhelming. I also needed to have each line coordinated to a specific color in order to maintain consistency. Adding each of these lines cluttered the legend so I added code to hide the confidence bands and only keep the predicted lines. After adding in the hovermode function with "x" as the input, it was really hard to understand the graph. To fix this I changed the input to "x unified" so that there would only be one tooltip and then reordered the upper and lower bounds about the predicted lines. Lastly I added a title and x and y axes labels to make the graph interpretable.
+I first built a basic survival model to predict survival times by sex. I put this model in a ggsurv plot to grab the probabilities for each sex and each of the upper and lower confidence band values. Converting the ggsurv plot to a plotly graph did not allow the customization I needed in order to make the graph more readable, color coordinated, and tooltip friendly. I decided to directly use plotly to incorporate these features so I manipulated the data frame to be in wide format in order for plotly to be able to display everything I wanted. I created confidence bands for each of the sexes and made them dashed lines with smaller line widths. This way it easily distinguishes between the predicted lines and their respective confidence bands without getting too overwhelming. I also needed to have each line coordinated to a specific color in order to maintain consistency. Adding each of these lines cluttered the legend, so I added code to hide the confidence bands and to  keep only the predicted lines. After adding in the hovermode function with "x" as the input, it was hard to interpret the graph. To fix this, I changed the input to "x unified" so that there would only be one tooltip, and then I reordered the upper and lower bounds of the predicted lines. Finally, I added a title and x and y axes labels to make the graph interpretable.
 
 
 
