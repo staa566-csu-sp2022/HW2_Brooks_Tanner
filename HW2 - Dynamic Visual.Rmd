@@ -20,70 +20,49 @@ library("htmlwidgets")
 library("GGally")
 
 
-# ## Multivariable Cox Model:
-# res.cox <- coxph(Surv(time, status) ~ age + sex + ph.ecog, data =  lung)
-# # summary(res.cox)
-# 
-# 
-# 
-# ## Plotting the Survival Model
-# # ggsurvplot(survfit(res.cox), color = "#2E9FDF", ggtheme = theme_minimal(), data = lung)
-# 
-# ##  Creating A New Data Set Keeping age and ph.ecog constant
-# sex_df <- with(lung,
-#                data.frame(sex = c(1, 2), 
-#                           age = rep(mean(age, na.rm = TRUE), 2),
-#                           ph.ecog = c(1, 1)
-#                )
-# )
-# 
-# 
-# # Fitting a basic survival model to this new dataset.
-# fit <- survfit(res.cox, newdata = sex_df)
-# surv_plot <- ggsurvplot(fit, conf.int = TRUE, legend.labs=c("Sex=Male", "Sex=Female"), ggtheme = theme_minimal(), data = sex_df)
-# 
-# 
-# # class(surv_plot)
-# plotly::ggplotly(surv_plot[[1]])
-
-
-
-
-
-
-# Improve survival curve model:
-# ggsurvplot(fit, conf.int = TRUE, legend.labs=c("Sex=Male", "Sex=Female"), 
-#            ggtheme = scale_color_viridis(discrete = TRUE), data = sex_df
-#            )
-
-# Fitting model:
+# Creating basic model:
 surv1 <- survfit(Surv(time,status) ~ sex, data = lung)
 
-# Creating ggplot of survial curves between men and women:
-p <- ggsurv(surv1, CI = F)
+# Getting data for plotly graph
+p <- ggsurv(surv1, CI = T)
+df <- data.frame(prob = p$data$surv, sex = p$data$group, 
+                 upper = p$data$up, lower = p$data$low, time = p$data$time)
+df$sex <- ifelse(df$sex == 1, "Male", "Female")
+df$sex <- as.factor(df$sex)
+df_wider <- df %>%
+  pivot_wider(names_from = sex, values_from = prob)
 
-# Changing color theme & Legend:
-p <- p + guides(linetype = "none") +
- scale_color_viridis(name = 'Sex', breaks = c(1,2), labels=c('Male', 'Female'), discrete = TRUE)
-
-# Changing the theme style:
-p <- p + theme_minimal()
-
-# Adding a title:
-p <- p + ggtitle("Survival Curves of Men and Women With Lung Cancer")
-
-
-p
+df_wider$MaleUpper <- ifelse(!is.na(df_wider$Male), df_wider$upper, NA)
+df_wider$MaleLower <- ifelse(!is.na(df_wider$Male), df_wider$lower, NA)
+df_wider$FemaleUpper <- ifelse(!is.na(df_wider$Female), df_wider$upper, NA)
+df_wider$FemaleLower <- ifelse(!is.na(df_wider$Female), df_wider$lower, NA)
 
 
-# Creating Interactive Plot:
-p_i <- plotly::ggplotly(p)
-
-
-p_i <- p_i %>%
-  rangeslider() %>%
-  layout(hovermode = "x")
-
+# Plotly interactive graph:
+p_i <- plot_ly() %>% 
+  add_lines(x = df_wider$time, y = ~df_wider$MaleUpper, name = "Upper Bound", 
+            line = list(width=2, dash="dot", color = '#481567FF'), showlegend = FALSE
+            , hovertemplate = paste('%{y}')) %>%
+  add_lines(x = df_wider$time, y = ~df_wider$Male, name = "Male", line = list(color = '#481567FF') 
+            , hovertemplate = paste('%{y}')) %>%
+  add_lines(x = df_wider$time, y = ~df_wider$MaleLower, name = "Lower Bound", 
+            line = list(width=2, dash="dot", color = '#481567FF'), showlegend = FALSE
+            , hovertemplate = paste('%{y}')) %>%
+  
+  add_lines(x = df_wider$time, y = ~df_wider$FemaleUpper, name = "Upper Bound", 
+            line = list(width=2, dash="dot", color = '#DCE319FF'), showlegend = FALSE
+            , hovertemplate = paste('%{y}')) %>%
+  add_lines(x = df_wider$time, y = ~df_wider$Female, name = "Female", line = list(color = '#DCE319FF') 
+            , hovertemplate = paste('%{y}')) %>%
+  add_lines(x = df_wider$time, y = ~df_wider$FemaleLower, name = "Upper Bound", 
+            line = list(width=2, dash="dot", color = '#DCE319FF'), showlegend = FALSE
+            , hovertemplate = paste('%{y}')) %>%
+  layout(hovermode = "x unified", 
+         title = "Survival Curves of Men and Women With Lung Cancer",
+         xaxis = list(title = "Time (in days)"),
+         yaxis = list(title = "Survival Probability")) %>%
+  rangeslider()
 
 p_i
+
 ```
